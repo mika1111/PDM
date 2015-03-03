@@ -130,6 +130,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                     stopService(i);
                     TextView stan=(TextView) findViewById(R.id.stan);
                     stan.setText("Stan:");
+                    Vibrations w=new Vibrations();
+                    w.vibrate(500,this.getBaseContext());
                 }
         }
     }
