@@ -17,7 +17,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public static final String TAG = MainActivity.class.getName();
     public Intent i;
     int start;
-
+int a=1;
+    int b=9;
     @Override
     protected void onPause() {
         super.onPause();
@@ -125,13 +126,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 // start++;
                 break;
             case R.id.stopButton:
+                Vibrations w=new Vibrations();
+                w.vibrate(a,b,this.getBaseContext());
+                if(b>0){
+                    a=a+1;
+                    b=b-1;
+                }
                 if(start==0){
                     start=-1;
                     stopService(i);
                     TextView stan=(TextView) findViewById(R.id.stan);
                     stan.setText("Stan:");
-                    Vibrations w=new Vibrations();
-                    w.vibrate(500,this.getBaseContext());
+
                 }
         }
     }
