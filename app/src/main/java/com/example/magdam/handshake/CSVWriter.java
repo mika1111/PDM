@@ -23,13 +23,14 @@ public class CSVWriter {
         if(isExternalStorageWritable()==true){
 
             try{
-
-                File dir = new File ("/mnt/ext_card/Download");
-                // File dir = new File ("/mnt/external_sd/Serwis");
+//
+             //   File dir = new File ("/mnt/ext_card/Download");
+                File dir = new File ("/mnt/sdcard/Download");
+                 //File dir = new File ("/mnt/external_sd/Serwis");
                 //File dir = new File ("/storage/extSdCard/Serwis2");
                 // File dir = Environment.getExternalStorageDirectory();
                 //       File dir = new File("/storage/emulated/0/DCIM");
-                dir.mkdir();
+              //  dir.mkdir();
                 File file2 = new File(dir, file);
                 fOut = new FileOutputStream(file2);
                 myOutWriter = new OutputStreamWriter(fOut);

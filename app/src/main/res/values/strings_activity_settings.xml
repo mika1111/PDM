@@ -1,0 +1,8 @@
+<resources>
+    <string name="title_activity_settings">Settings</string>
+    <string name="pref_title_display_name">Server IP</string>
+    <string name="pref_default_display_name">127.0.0.1</string>
+    <string name="pref_title_odbiorca">Odbiorca</string>
+    <string name="pref_title_nadawca">Nadawca</string>
+
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_transform_entries">
+        <item name="1">Maximum Modułu</item>
+        <item name="7">Srednia</item>
+        <item name="3">Dlugość wektora</item>
+    </string-array>
+    <string-array name="pref_transform_values">
+        <item name="1">0</item>
+        <item name="7">1</item>
+        <item name="30">2</item>
+    </string-array>
+
+</resources>
