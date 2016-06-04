@@ -1,7 +1,10 @@
 package com.example.magdam.handshake;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,6 +17,9 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,12 +29,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public static final String TAG = MainActivity.class.getName();
     public Intent i;
     int start;
+    UDPSender server= null;
     int b = 9;
     int ODBIORCA_RESULS=1;
     int NADAWCA_RESULS=2;
     String NAD_PREF="Nadawca";
     String ODB_PREF="Odbiorca";
     Button nad;
+    View background;
     Button odb;
     @Override
     protected void onPause() {
@@ -52,12 +60,16 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button stop = (Button) findViewById(R.id.stopButton);
         Button start = (Button) findViewById(R.id.startButton);
+        background=(View) findViewById(R.id.layout);
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
         nad = (Button) findViewById(R.id.nadawca);
         odb = (Button) findViewById(R.id.odbiorca);
         start.setOnClickListener(this);
-        stop.setOnClickListener(this);
         nad.setOnClickListener(this);
         odb.setOnClickListener(this);
         SharedPreferences settings = getSharedPreferences(this.ODB_PREF, 0);
@@ -83,14 +95,40 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 this.register();
 
     }
-private void register(){
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, 9000)
+                        .show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private void register(){
     JSONObject object = new JSONObject();
     try {
         object.put("wiadomosc", "rejestracja");
     } catch (JSONException e) {
         e.printStackTrace();
     }
-    new UDPSender(true, object, this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, object.toString());
+        if(server!=null){
+            server.setListen(false);
+        }
+        server=new UDPSender(true, object, this);
+        server.setBacgoud(this);
+        server.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, object.toString());
 }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -179,31 +217,31 @@ private void register(){
 
         return s;
     }
+    int from= Color.BLUE;
 
+    public void setColor(int c) {
+        int to;
+        if(c==0){
+            to= Color.BLUE;
+        } else if(c==1){
+            to=Color.YELLOW;
+        } else {
+            to= Color.RED;
+        }
+               View background=(View)  findViewById(R.id.layout);
+                background.setBackgroundColor(to);
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.startButton:
                 Log.i(TAG, "Start:" + start);
-                if (start == -1) {
                     start = 0;
                     SharedPreferences algorytm = PreferenceManager.getDefaultSharedPreferences(this);
                     this.register();
                     Log.i(TAG, "algorytm:  "+algorytm.getString("transform","0"));
                     i.putExtra("path", algorytm.getString("transform","0"));
                     startService(i);
-                    TextView stan = (TextView) findViewById(R.id.stan);
-                    stan.setText("Stan: POlACZENIE");
-                }
-                // start++;
-                break;
-            case R.id.stopButton:
-                if(start==0) {
-                    stopService(i);
-                    TextView stan = (TextView) findViewById(R.id.stan);
-                    stan.setText("Stan:");
-                    start=-1;
-                }
                 break;
             case R.id.nadawca:
                 Intent nad=new Intent(MainActivity.this,UserListActivity.class);

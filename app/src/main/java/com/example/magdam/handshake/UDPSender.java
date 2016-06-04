@@ -1,10 +1,14 @@
 package com.example.magdam.handshake;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,7 +22,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 
-public class UDPSender extends AsyncTask<String, Void, String> {
+public class UDPSender extends AsyncTask<String, Integer, String> {
     int UDP_SERVER_PORT=11111;
     String nadawca;
     String odbiorca;
@@ -27,7 +31,8 @@ public class UDPSender extends AsyncTask<String, Void, String> {
     String NAD_PREF="Nadawca";
     String ODB_PREF="Odbiorca";
     Context c;
-
+    int from =Color.BLUE;
+    MainActivity view;
     JSONObject w;
     public UDPSender(boolean l,  JSONObject wiadomosc, Context context){
         c=context;
@@ -89,9 +94,22 @@ public class UDPSender extends AsyncTask<String, Void, String> {
                 String senderIP = packet.getAddress().getHostAddress();
                 String message = new String(packet.getData()).trim();
                 Log.d("UDP", "Got UDB from " + senderIP + ", message: " + message);
-                Vibrations v=new Vibrations(10, setVibration(Long.parseLong(message)), c);
-                v.vibrate();
-                Log.d("UDP", "Got UDB from " + senderIP + ", message: " + message);
+                String[] values=message.split(",");
+                if(values.length>=2) {
+                    try{
+                        Long fv=Long.parseLong(values[0]);
+                        Vibrations v = new Vibrations(10, setVibration(fv), c);
+                        v.vibrate();
+                        Log.d("UDP", "Got UDB from " + senderIP + ", message: " + message);
+                        Integer color=Integer.parseInt(values[1]);
+                        publishProgress(color);
+                    } catch (Exception ex) {
+                        Log.d("UDP", "Cannot parse "+ex.getMessage());
+                    }
+
+                } else {
+                    Log.w("UDP", "Got UDB from " + senderIP + ", message: " + message);
+                }
             }
 
 
@@ -121,5 +139,16 @@ public class UDPSender extends AsyncTask<String, Void, String> {
 
         }
 
+    }
+    @Override
+    public void onProgressUpdate(Integer... progress) {
+        view.setColor(progress[0]);
+    }
+    public void setBacgoud(MainActivity color) {
+        view = color;
+    }
+    @Override
+    protected void onPostExecute(String res) {
+        Log.d("UDP", "Postexecute "+res);
     }
 }

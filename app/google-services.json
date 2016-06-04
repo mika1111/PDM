@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "1004131786827",
+    "project_id": "handshake-4bdc7"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004131786827:android:3db72813513b793d",
+        "android_client_info": {
+          "package_name": "com.example.magdam.handshake"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGSEHWCs7BFOZpOvpt8TZSgfua2LPiOxs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

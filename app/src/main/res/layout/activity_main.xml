@@ -18,33 +18,10 @@
         android:layout_alignParentStart="true" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stop"
-        android:id="@+id/stopButton"
-        android:layout_alignBottom="@+id/startButton"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        />
-
-
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Stan:"
-        android:id="@+id/stan"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:textSize="@android:dimen/app_icon_size" />
-
-    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nadawca"
         android:id="@+id/nadawca"
-        android:layout_below="@+id/stan"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="168dp" />
@@ -55,8 +32,6 @@
         android:text="Odbiorca"
         android:id="@+id/odbiorca"
         android:layout_alignTop="@+id/nadawca"
-        android:layout_alignRight="@+id/stopButton"
-        android:layout_alignEnd="@+id/stopButton"
         android:layout_marginRight="29dp"
         android:layout_marginEnd="29dp" />
 

@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimerTask;
 
 
 public class Sensors extends Service implements SensorEventListener {
@@ -37,7 +38,10 @@ public class Sensors extends Service implements SensorEventListener {
     private WakeLock mWakeLock = null;
     HashMap<Integer, CSVWriter> hashMap;
     float[] gravity= new float[3];
+    float ryr= 0f;
+    float pvalues= 0f;
     final float alpha = 0.8f;
+    int STOP_FLAG=0;
     long sendValue=0;
     float[] linear_acceleration=new float[3];
     private int algorytm=0;
@@ -79,11 +83,11 @@ public class Sensors extends Service implements SensorEventListener {
         }
         return max;
     }
-    private void sendVal(long sendVal){
+    private void sendVal(String sendVal){
         try {
             Log.i(TAG, "VALUE: " + sendVal);
             JSONObject object = new JSONObject();
-            object.put("wiadomosc", Long.toString(sendVal));
+            object.put("wiadomosc", sendVal);
             UDPSender sender= new UDPSender(false, object, this);
             sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, object.toString());
         } catch (JSONException e) {
@@ -104,11 +108,38 @@ public class Sensors extends Service implements SensorEventListener {
             default:
                 value=maxModule(linear_acceleration);
         }
+        if(value==0){
+            STOP_FLAG++;
+        }
+        if(STOP_FLAG==50){
+            Log.d("SENSOR", "Stoppded afte r20-0");
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    stop();
+                }
+            }, 30000);
+
+        }
         if(value!=sendValue){
             sendValue=value;
-            sendVal(sendValue);
+            sendVal(""+sendValue+","+kwantyzacja(ryr));
         }
     }
+
+    public void stop(){
+        stopSelf();
+    }
+    int kwantyzacja(float val){
+        if(val<0.05){
+            return 0;
+        } else if(val<0.2) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
+
     private void getSensorValue(int type, float[] values, long timestamp) {
         if(type==Sensor.TYPE_LINEAR_ACCELERATION) {
             sending();
@@ -122,6 +153,10 @@ public class Sensors extends Service implements SensorEventListener {
             linear_acceleration[1] = values[1] - gravity[1];
             linear_acceleration[2] = values[2] - gravity[2];
             sending();
+        }
+        else if(type==Sensor.TYPE_GYROSCOPE){
+            ryr = alpha * ryr + alpha * (vectorLength(values)-pvalues);
+            pvalues = vectorLength(values);
         }
     }
 
@@ -181,6 +216,7 @@ public class Sensors extends Service implements SensorEventListener {
                     unregisterListener();
                     registerListener(Sensor.TYPE_ACCELEROMETER);
                     registerListener(Sensor.TYPE_LINEAR_ACCELERATION);
+                    registerListener(Sensor.TYPE_GYROSCOPE);
                     registerListener(Sensor.TYPE_GRAVITY);
 
                 }
@@ -212,6 +248,7 @@ public class Sensors extends Service implements SensorEventListener {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String currentDateandTime = sdf.format(new Date());
         startFile(Sensor.TYPE_ACCELEROMETER, currentDateandTime, "akcelerometr");
+        startFile(Sensor.TYPE_GYROSCOPE, currentDateandTime, "gyroskope");
         startFile(Sensor.TYPE_LINEAR_ACCELERATION, currentDateandTime, "liniowyAkc");
         startFile(Sensor.TYPE_GRAVITY, currentDateandTime, "gravity");
         PowerManager manager =
@@ -242,13 +279,18 @@ public class Sensors extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        algorytm=Integer.parseInt(intent.getStringExtra("path"));
+        if(intent.getStringExtra("path")!=null){
+            algorytm=Integer.parseInt(intent.getStringExtra("path"));
+        } else {
+            algorytm=1;
+        }
+
         Log.i(TAG, "algorytm2"+intent.getStringExtra("path"));
         startForeground(Process.myPid(), new Notification());
         registerListener(Sensor.TYPE_ACCELEROMETER);
         registerListener(Sensor.TYPE_LINEAR_ACCELERATION);
         registerListener(Sensor.TYPE_GRAVITY);
-
+        registerListener(Sensor.TYPE_GYROSCOPE);
 
         mWakeLock.acquire();
 
