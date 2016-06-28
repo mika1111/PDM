@@ -15,7 +15,7 @@ package com.example.magdam.handshake;
 public class NumberPickerPreference extends DialogPreference {
 
     // allowed range
-    public static final int MAX_VALUE = 100;
+    public static final int MAX_VALUE = 5;
     public static final int MIN_VALUE = 0;
     // enable or disable the 'circular behavior'
     public static final boolean WRAP_SELECTOR_WHEEL = true;
@@ -86,10 +86,3 @@ public class NumberPickerPreference extends DialogPreference {
     }
 }
 
-shareimprove this answer
-
-        edited Oct 5 '15 at 21:03
-
-        answered Nov 20 '14 at 18:23
-        Rob Meeuwisse
-        1,4291515

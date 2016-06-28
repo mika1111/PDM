@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="pref_transform_entries">
-        <item name="1">Maximum Modułu</item>
+        <item name="1">Maksimum Modułu</item>
         <item name="7">Srednia</item>
-        <item name="3">Dlugość wektora</item>
+        <item name="30">Długość wektora</item>
+        <item name="50">Minimum</item>
+        <item name="70">Maksimum</item>
     </string-array>
     <string-array name="pref_transform_values">
         <item name="1">0</item>
         <item name="7">1</item>
         <item name="30">2</item>
+        <item name="50">3</item>
+        <item name="70">4</item>
     </string-array>
-
+    <string-array name="pref_music_entries">
+        <item name="1">Muzyka 1</item>
+        <item name="7">Muzyka 2</item>
+        <item name="30">Muzyka 3</item>
+    </string-array>
+    <string-array name="pref_music_values">
+        <item name="1">0</item>
+        <item name="7">1</item>
+        <item name="30">2</item>
+    </string-array>
 </resources>

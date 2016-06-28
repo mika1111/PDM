@@ -15,5 +15,16 @@
         android:entries="@array/pref_transform_entries"
         android:entryValues="@array/pref_transform_values"
         android:defaultValue="0" />
-
+    <ListPreference
+        android:key="music"
+        android:title="@string/pref_music"
+        android:dialogTitle="@string/pref_music"
+        android:entries="@array/pref_music_entries"
+        android:entryValues="@array/pref_music_values"
+        android:defaultValue="0" />
+    <com.example.magdam.handshake.NumberPickerPreference
+        android:key="vibration"
+        android:title="Wzmocnienie wibracji"
+        android:defaultValue="0"
+ />
 </PreferenceScreen>

@@ -1,7 +1,9 @@
 package com.example.magdam.handshake;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 
@@ -19,9 +21,12 @@ public class Vibrations {
     int value=0;
 
     public Vibrations(long T, long active, Context context) {
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(context);
+        int vi=SP.getInt("vibration",0);
+        Log.w("Vibration picker", ""+vi);
         this.context = context;
         this.t=T;
-        this.active=active;
+        this.active=active+(long) vi;
         Log.d(TAG, "index=" + T);
         int paternLength = (int) Math.floor(DURATION / T) * 2;
         Log.d(TAG, "paternLength=" + paternLength);

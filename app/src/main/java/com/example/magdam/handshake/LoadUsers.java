@@ -26,36 +26,22 @@ public class LoadUsers {
     String adresKodu = null;
     public static final String TAG = LoadUsers.class.getName();
 
-    public String getNearest(double x, double y){
-        String result=null;
-        adresKodu="http://magda.istalacar.com/sciana.php";
-        String scianka=null;
-        try {
-            MyAsyncTask ast=new MyAsyncTask();
-            result = ast.execute(x, y).get();
-            JSONArray jArray = new JSONArray(result);
-            JSONObject jObject = jArray.getJSONObject(0);
-            scianka=jObject.getString("Nazwa");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return scianka;
-    }
-    public ArrayList<String> getAllUsers(){
+    public ArrayList<User> getAllUsers(long updateDate){
         String result=null;
         adresKodu="http://magda.istalacar.com/userList.php";
-        ArrayList<String> users=null;
+        ArrayList<User> users=null;
         try {
             MyAsyncTask ast=new MyAsyncTask();
-            result = ast.execute().get();
+            result = ast.execute(updateDate).get();
             JSONArray jArray = new JSONArray(result);
             if(jArray.length()>0){
-                users=new ArrayList<String>();
+                users=new ArrayList<User>();
             }
             for(int i = 0; i < jArray.length(); i++) {
                 JSONObject jObject = jArray.getJSONObject(i);
-                users.add(jObject.getString("NAME"));
+                User u=new User(jObject.getInt("ID"), jObject.getString("NAME"), jObject.getString("SURNAME"), jObject.getString("LOGIN"));
+                u.setGoogleId(jObject.getString("GOOGLE"));
+                users.add(u);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,15 +49,14 @@ public class LoadUsers {
         return users;
     }
 
-    private class MyAsyncTask extends AsyncTask<Double, Void, String> {
+    private class MyAsyncTask extends AsyncTask<Long, Void, String> {
         @Override
-        protected String doInBackground(Double... args) {
+        protected String doInBackground(Long... args) {
             String result = "";
             InputStream is = null;
             ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            for (double cos : args) {
-
-                nameValuePairs.add(new BasicNameValuePair("x", Double.toString(cos)));
+            for (long cos : args) {
+                nameValuePairs.add(new BasicNameValuePair("update", Long.toString(cos)));
             }
 
             try {

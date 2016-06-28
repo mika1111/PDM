@@ -1,39 +1,86 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
-    android:id="@+id/layout">
+    android:id="@+id/layout"
+    android:background="@drawable/gradient">
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start"
+        android:layout_width="280dp"
+        android:layout_height="160dp"
         android:id="@+id/startButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:alpha="0.9"
+        android:background="@drawable/handshake"
+        android:layout_centerVertical="true"
+        android:layout_alignRight="@+id/odb"
+        android:layout_alignEnd="@+id/odb" />
 
-    <Button
+    <LinearLayout
+        android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Nadawca"
-        android:id="@+id/nadawca"
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="168dp" />
+        android:layout_alignParentStart="true">
 
-    <Button
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/nadawca"
+            android:background="@drawable/ic_person_outline_black_24dp" />
+        <TextView
+            android:id="@+id/nadawcaText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:text="Nadawca"
+            android:textColor="@color/background_floating_material_dark" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/odb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Odbiorca"
-        android:id="@+id/odbiorca"
-        android:layout_alignTop="@+id/nadawca"
-        android:layout_marginRight="29dp"
-        android:layout_marginEnd="29dp" />
+        android:background="@android:drawable/btn_default"
+        android:clickable="true"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="42dp"
+        android:layout_marginEnd="42dp">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/odbiorca"
+            android:background="@drawable/ic_person_outline_black_24dp" />
+        <TextView
+            android:id="@+id/odbiorcaText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
+            android:text="Odbiorca"
+            android:textColor="@color/background_floating_material_dark" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="START"
+        android:id="@+id/textView"
+        android:layout_above="@+id/startButton"
+        android:layout_toLeftOf="@+id/odb"
+        android:layout_toStartOf="@+id/odb" />
 
 
 </RelativeLayout>

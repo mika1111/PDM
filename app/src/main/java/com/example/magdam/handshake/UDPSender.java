@@ -1,14 +1,13 @@
 package com.example.magdam.handshake;
 
-import android.animation.ArgbEvaluator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +22,7 @@ import java.net.UnknownHostException;
 
 
 public class UDPSender extends AsyncTask<String, Integer, String> {
+    private static final String MUSIC = "music";
     int UDP_SERVER_PORT=11111;
     String nadawca;
     String odbiorca;
@@ -33,6 +33,9 @@ public class UDPSender extends AsyncTask<String, Integer, String> {
     Context c;
     int from =Color.BLUE;
     MainActivity view;
+    MediaPlayer mp;
+    int progress=0;
+    int length=0;
     JSONObject w;
     public UDPSender(boolean l,  JSONObject wiadomosc, Context context){
         c=context;
@@ -94,7 +97,7 @@ public class UDPSender extends AsyncTask<String, Integer, String> {
                 String senderIP = packet.getAddress().getHostAddress();
                 String message = new String(packet.getData()).trim();
                 Log.d("UDP", "Got UDB from " + senderIP + ", message: " + message);
-                String[] values=message.split(",");
+                String[] values=message.replace("[", "").replace("]", "").split(",");
                 if(values.length>=2) {
                     try{
                         Long fv=Long.parseLong(values[0]);
@@ -140,10 +143,21 @@ public class UDPSender extends AsyncTask<String, Integer, String> {
         }
 
     }
+    private int ZERO=0;
     @Override
     public void onProgressUpdate(Integer... progress) {
-        view.setColor(progress[0]);
-    }
+        this.length=this.length+1;
+        if(progress[0]==0){
+            ZERO=ZERO+1;
+        }
+        this.progress=this.progress+progress[0];
+        double color= (double)this.progress/(double)this.length;
+        Log.d("COLOR", ""+color+","+progress[0]+","+this.progress+","+this.length);
+        view.setColor(color);
+        view.startMusic(color);
+        view.stopMusic();
+      //  ;
+     }
     public void setBacgoud(MainActivity color) {
         view = color;
     }

@@ -83,6 +83,34 @@ public class Sensors extends Service implements SensorEventListener {
         }
         return max;
     }
+    /**
+     *
+     * @param chars
+     * @return the max value in the array of chars
+     */
+    private static long  minimum(float[] chars) {
+        float min = Math.abs(chars[0]);
+        for (int ktr = 0; ktr < chars.length; ktr++) {
+            if (Math.abs(chars[ktr]) < min) {
+                min = Math.abs(chars[ktr]);
+            }
+        }
+        return (long) min;
+    }
+    /**
+     *
+     * @param chars
+     * @return the max value in the array of chars
+     */
+    private static long maximum(float[] chars) {
+        float max = Math.abs(chars[0]);
+        for (int ktr = 0; ktr < chars.length; ktr++) {
+            if (Math.abs(chars[ktr]) > max) {
+                max = Math.abs(chars[ktr]);
+            }
+        }
+        return (long) max;
+    }
     private void sendVal(String sendVal){
         try {
             Log.i(TAG, "VALUE: " + sendVal);
@@ -105,25 +133,32 @@ public class Sensors extends Service implements SensorEventListener {
             case 2:
                 value=vectorLength(linear_acceleration);
                 break;
+            case 3:
+                value=minimum(linear_acceleration);
+                break;
+            case 4:
+                value=maximum(linear_acceleration);
+                break;
             default:
                 value=maxModule(linear_acceleration);
         }
         if(value==0){
             STOP_FLAG++;
         }
-        if(STOP_FLAG==50){
+        if(STOP_FLAG==20){
             Log.d("SENSOR", "Stoppded afte r20-0");
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     stop();
                 }
-            }, 30000);
+            }, 15000);
 
         }
         if(value!=sendValue){
             sendValue=value;
-            sendVal(""+sendValue+","+kwantyzacja(ryr));
+            Log.d("SENSOR", ""+sendValue+","+kwantyzacja(ryr));
+            sendVal("["+sendValue+","+kwantyzacja(ryr)+"]");
         }
     }
 
@@ -131,12 +166,12 @@ public class Sensors extends Service implements SensorEventListener {
         stopSelf();
     }
     int kwantyzacja(float val){
-        if(val<0.05){
+        if(val<0.03){
             return 0;
         } else if(val<0.2) {
-            return 1;
+            return 5;
         } else {
-            return 2;
+            return 10;
         }
     }
 
@@ -282,7 +317,7 @@ public class Sensors extends Service implements SensorEventListener {
         if(intent.getStringExtra("path")!=null){
             algorytm=Integer.parseInt(intent.getStringExtra("path"));
         } else {
-            algorytm=1;
+            algorytm=0;
         }
 
         Log.i(TAG, "algorytm2"+intent.getStringExtra("path"));
@@ -291,8 +326,10 @@ public class Sensors extends Service implements SensorEventListener {
         registerListener(Sensor.TYPE_LINEAR_ACCELERATION);
         registerListener(Sensor.TYPE_GRAVITY);
         registerListener(Sensor.TYPE_GYROSCOPE);
-
-        mWakeLock.acquire();
+        if ((mWakeLock != null) &&           // we have a WakeLock
+                (mWakeLock.isHeld() == false)) {  // but we don't hold it
+            mWakeLock.acquire();
+        }
 
         return START_STICKY;
     }

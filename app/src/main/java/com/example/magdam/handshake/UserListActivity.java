@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,26 +14,27 @@ import java.util.ArrayList;
 
 public class UserListActivity extends ActionBarActivity {
     private ListView list ;
-    private LoadUsers usersDB;
-    private ArrayAdapter<String> adapter ;
-    ArrayList<String> users;
+    private ArrayAdapter<User> adapter ;
+    LocalDatabase ldb;
+    ArrayList<User> allUsers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
+        ldb=new LocalDatabase(this);
+        allUsers=ldb.allUsers();
         list = (ListView) findViewById(R.id.listView);
-        usersDB=new LoadUsers();
-        users=usersDB.getAllUsers();
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, users);
+         adapter = new ArrayAdapter<User>(this,
+                android.R.layout.simple_list_item_1, allUsers);
         list.setAdapter(adapter);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
 
-                String clicked = users.get(position);
+                User clicked = allUsers.get(position);
                 Intent intent=new Intent();
-                intent.putExtra("User",clicked);
+                intent.putExtra("User", clicked.name);
                 setResult(Activity.RESULT_OK,intent);
                 finish();
             }

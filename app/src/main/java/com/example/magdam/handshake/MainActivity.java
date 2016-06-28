@@ -5,8 +5,11 @@ import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -14,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -28,47 +32,53 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
     public static final String TAG = MainActivity.class.getName();
     public Intent i;
-    int start;
     UDPSender server= null;
     int b = 9;
     int ODBIORCA_RESULS=1;
     int NADAWCA_RESULS=2;
+    TextView nadText;
+    TextView odbText;
+    Button start;
     String NAD_PREF="Nadawca";
     String ODB_PREF="Odbiorca";
-    Button nad;
+    ImageButton nad;
     View background;
-    Button odb;
+    ImageButton odb;
+    private MediaPlayer mp;
+
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause: " + this.start);
+        Log.i(TAG, "onPause: " );
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i(TAG, "onStop: " + this.start);
+        Log.i(TAG, "onStop: " );
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy: " + this.start);
+        Log.i(TAG, "onDestroy: ");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button start = (Button) findViewById(R.id.startButton);
+        start = (Button) findViewById(R.id.startButton);
         background=(View) findViewById(R.id.layout);
         if (checkPlayServices()) {
             // Start IntentService to register this application with GCM.
             Intent intent = new Intent(this, RegistrationIntentService.class);
             startService(intent);
         }
-        nad = (Button) findViewById(R.id.nadawca);
-        odb = (Button) findViewById(R.id.odbiorca);
+        nad = (ImageButton) findViewById(R.id.nadawca);
+        odb = (ImageButton) findViewById(R.id.odbiorca);
+        nadText = (TextView) findViewById(R.id.nadawcaText);
+        odbText = (TextView) findViewById(R.id.odbiorcaText);
         start.setOnClickListener(this);
         nad.setOnClickListener(this);
         odb.setOnClickListener(this);
@@ -76,23 +86,36 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         String odbiorca = settings.getString(this.ODB_PREF, "");
 
         if(odbiorca!=""){
-            odb.setText(odbiorca);
+            odbText.setText(odbiorca);
         }
         SharedPreferences nadawca = getSharedPreferences(this.NAD_PREF, 0);
         String nada = nadawca.getString(this.NAD_PREF, "");
         if(nada!=""){
-            nad.setText(nada);
+            nadText.setText(nada);
         }
-        if (savedInstanceState != null) {
-            this.start = savedInstanceState.getInt("start");
 
-            Log.i(TAG, "OnCreate: called save start" + this.start);
-        } else {
-            this.start = -1;
-
-            Log.i(TAG, "OnCreate: called new start" + this.start);
-        }
 this.register();
+
+    }
+    private static final String MUSIC = "music";
+    public void startMusic(double color){
+        if(mp!=null && mp.isPlaying()) {
+            float volume=(float)color/6;
+            mp.setVolume(volume, volume);
+        } else {
+            SharedPreferences music = PreferenceManager.getDefaultSharedPreferences(this);
+            int song = Integer.parseInt(music.getString(MUSIC, "0"));
+            int sg = 1;
+            if (song == 2) {
+                sg = R.raw.minor;
+            } else if (song == 1) {
+                sg = R.raw.waves2;
+            } else {
+                sg=R.raw.waves;
+            }
+            mp = MediaPlayer.create(this, sg);
+            mp.start();
+        }
 
     }
     /**
@@ -136,15 +159,13 @@ this.register();
         if (resultCode == RESULT_OK) {
             String user = data.getStringExtra("User");
         if (requestCode == this.NADAWCA_RESULS) {
-                nad.setText(user);
+                nadText.setText(user);
             SharedPreferences settings = getSharedPreferences(this.NAD_PREF, 0);
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(this.NAD_PREF, user);
             editor.apply();
-            this.register();
-
         } else if(requestCode==this.ODBIORCA_RESULS){
-            odb.setText(user);
+            odbText.setText(user);
             SharedPreferences settings = getSharedPreferences(this.ODB_PREF, 0);
             SharedPreferences.Editor editor = settings.edit();
             editor.putString(this.ODB_PREF, user);
@@ -155,15 +176,11 @@ this.register();
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putInt("start", start);
-        Log.i(TAG, "onSaveInstanceState" + this.start);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        start = savedInstanceState.getInt("start");
         Log.i(TAG, "onRestoreInstanceState" + this.start);
 
     }
@@ -172,13 +189,11 @@ this.register();
     public void onResume() {
         super.onResume();
         i = new Intent(this, Sensors.class);
-        if (start == 0) {
             SharedPreferences algorytm = PreferenceManager.getDefaultSharedPreferences(this);
             int transform= Integer.parseInt(algorytm.getString("transform","0"));
             Log.i(TAG, "algorytm:  "+algorytm.getString("transform","0"));
             i.putExtra("path", transform);
-            startService(i);
-        }
+
     }
 
     @Override
@@ -219,26 +234,40 @@ this.register();
     }
     int from= Color.BLUE;
 
-    public void setColor(int c) {
+    public void setColor(double c) {
         int to;
-        if(c==0){
-            to= Color.BLUE;
-        } else if(c==1){
-            to=Color.YELLOW;
+        Color color=new Color();
+        if(c<1){
+            to= color.rgb(139, 0, 255);
+        } else if(c<2){
+            to=color.rgb(75, 0, 130);
+        } else if(c<3){
+            to=color.rgb(71,58,255);
+        } else if(c<4){
+            to=color.rgb(0,204,0);
+        } else if(c<5){
+            to=color.rgb(255,255,0);
+        } else if(c<6){
+            to=color.rgb(255,127,0);
         } else {
             to= Color.RED;
         }
                View background=(View)  findViewById(R.id.layout);
-                background.setBackgroundColor(to);
+
+        GradientDrawable gd = new GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                new int[] {from,to});
+        gd.setCornerRadius(0f);
+
+        background.setBackgroundDrawable(gd);
     }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.startButton:
-                Log.i(TAG, "Start:" + start);
-                    start = 0;
                     SharedPreferences algorytm = PreferenceManager.getDefaultSharedPreferences(this);
-                    this.register();
+                Log.d("STATUS", server.getStatus().toString());
+                        this.register();
                     Log.i(TAG, "algorytm:  "+algorytm.getString("transform","0"));
                     i.putExtra("path", algorytm.getString("transform","0"));
                     startService(i);
@@ -253,6 +282,23 @@ this.register();
                 break;
 
 
+        }
+    }
+    long current=0;
+    public void stopMusic() {
+        current = System.currentTimeMillis();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stop();
+            }
+        }, 15000);
+    }
+    public void stop(){
+        long currentDelay = System.currentTimeMillis();
+
+        if(mp!=null &&mp.isPlaying() && currentDelay-current>=1000) {
+            mp.stop();
         }
     }
 }
